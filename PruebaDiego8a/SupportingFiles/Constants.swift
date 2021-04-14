@@ -13,7 +13,7 @@ struct  Constants{
     
     struct URL {
 
-        static let base = "http://api.themoviedb.org/3"
+        static let base = "https://api.themoviedb.org/3"
 
         static let basePoster = "http://image.tmdb.org/t/p"
 

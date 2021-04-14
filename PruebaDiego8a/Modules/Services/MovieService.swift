@@ -10,7 +10,6 @@ import Foundation
 class MovieService {
     
 func getMovies(page: String,_ completionHandler:  @escaping(ResponseMovies? , Error?) -> Void) {
-//func getMovies(){
     let urlBase = "\(Constants.URL.base)/discover/movie?api_key=\(Constants.NEWS_API_KEY)&page=\(page)"
     let url = URL(string: urlBase)
     guard let requestUrl = url else { fatalError() }
@@ -30,35 +29,18 @@ func getMovies(page: String,_ completionHandler:  @escaping(ResponseMovies? , Er
         // Read HTTP Response Status code
         if let response = response as? HTTPURLResponse {
             print("Response HTTP Status code: \(response.statusCode)")
-            completionHandler(nil,BackendError.internalError(reason: "Parsing error"))
         }
         
         // Convert HTTP Response Data to a simple String
         if let data = data, let dataString = String(data: data, encoding: .utf8) {
 //            print("Response data string:\n \(dataString)")
-            let responseData = self.parseJSON(data: data)
+            let responseData = self.parseJSON(data: dataString)
             completionHandler(responseData!, nil)
         }
         
     }
     task.resume()
 }
-//       //func getMovies(page: String) -> ResponseMovies? {
-//           let url = "\(Constants.URL.base)/discover/movie?api_key=\(Constants.NEWS_API_KEY)&page=\(page)"
-//           AF.request(url, method: .get, encoding: JSONEncoding.default)
-//                   .responseJSON { response in
-//                    switch response.result {
-//                    case .success(let value):
-//                        if let json = value as? [String: Any] {
-//                            let response = Mapper<ResponseMovies>().map(JSON: json)
-//                            completionHandler(response, nil)
-//                        }
-//                    case .failure(let error):
-//                        print(error)
-//                        completionHandler(nil,BackendError.internalError(reason: "Parsing error"))
-//                    }
-//            }
-//    }
 
 enum BackendError: Error {
     case parameters(reason: String)
@@ -69,15 +51,20 @@ enum BackendError: Error {
     case objectSerialization(reason: String)
 }
     
-func parseJSON(data: Data) -> ResponseMovies? {
+func parseJSON(data: String) -> ResponseMovies? {
     
     var returnValue: ResponseMovies?
+    let str = data
+    let dataString = Data(str.utf8)
+
     do {
-        returnValue = try JSONDecoder().decode(ResponseMovies.self, from: data)
-    } catch {
-        print("Error took place\(error.localizedDescription).")
+        
+        if let json = try JSONSerialization.jsonObject(with: dataString, options: []) as? [String:Any]{
+            returnValue = try JSONDecoder().decode(ResponseMovies.self, from: dataString)
+        }
+    } catch let error as NSError {
+        print("Failed to load: \(error.localizedDescription)")
     }
-    
     return returnValue
 }
 }

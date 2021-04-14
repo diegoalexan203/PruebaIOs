@@ -13,12 +13,17 @@ class LisMoviesViewController: UIViewController, UICollectionViewDelegate {
     
     var presenter: ListMoviesViewToPresenterProtocol?
     var movies : [MoviesEntity] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        moviesCollectionView.dataSource = self
+        moviesCollectionView.delegate = self
         // Do any additional setup after loading the view.
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        presenter?.viewWillAppear()
+    }
 
     /*
     // MARK: - Navigation
@@ -33,7 +38,7 @@ class LisMoviesViewController: UIViewController, UICollectionViewDelegate {
 }
 extension LisMoviesViewController: UICollectionViewDataSource{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return movies.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -43,7 +48,16 @@ extension LisMoviesViewController: UICollectionViewDataSource{
 
 extension LisMoviesViewController: ListMoviesPresentertoViewProtocol{
     func updateView(moviesResponse: ResponseMovies) {
-    
+        for movie in moviesResponse.movies! {
+            self.movies.append(movie)
+         }
+//        moviesCollectionView.reloadData()
+        DispatchQueue.main.async {
+            self.moviesCollectionView.performBatchUpdates({ [weak self] in
+            let visibleItems = self?.moviesCollectionView.indexPathsForVisibleItems ?? []
+                self!.moviesCollectionView.reloadItems(at: visibleItems)
+        })
+        }
     }
     
     

@@ -18,8 +18,6 @@ class ListMoviesRoute: ListMoviesPresenterToRouterProtocol {
         let presenter : ListMoviesViewToPresenterProtocol & ListMoviesInteractorToPresenterProtocol = ListMoviesPresenter()
         let interactor : ListMoviesPresentertoInteractoProtocol = ListMoviesInteractor()
         let router: ListMoviesPresenterToRouterProtocol = ListMoviesRoute()
-//        var list : [MoviesEntity] = []
-//        let view = ListMoviesViewController(presenter: presenter, moviesList: list)
         
         view.presenter = presenter
         presenter.view = view
